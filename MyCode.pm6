@@ -1,16 +1,24 @@
 use v6;
 unit module MyCode;
 
+# =======================================================================
+# ***********************************************************************
+# WHY IS ELSEIF NOT WORKING??
+# REPL told me to change everything from ELSE IF to ELSEIF but won't compile
+# Turning in what I have and checking if rakudo will download
+# ***********************************************************************
+# =======================================================================
+
 sub getTokens ($program) is export {
     # split on new line and remove everything that is to the right of a ;
     my @splitNL = split(/\n/, $program);
-    my $prepS = ();
+    my $prepP = ();
     for @splitNL -> $elem {
         if $elem ~~ /\;/ {
-            $prepS ~= $/.prematch;
+            $prepP ~= $/.prematch;
         }
         else {
-            $prepS ~= $elem;
+            $prepP ~= $elem;
         }
     }
     # split on spaces
@@ -22,7 +30,7 @@ sub getTokens ($program) is export {
             @prepName.append($/);
             @prepName.append($/.postmatch);
         }
-        else if $elem ~~ / \) / {
+        elseif $elem ~~ / \) / {
             @prepName.append($/.prematch);
             # check that there are no trailing right parenthesis
             # with the limited operators there should never be duplicate left parenthesis
@@ -38,23 +46,23 @@ sub getTokens ($program) is export {
         if $elem ~~ / \( / {
             @final.append("LPAREN:" ~ $elem);
         }
-        else if $elem ~~ / \) / {
+        elseif $elem ~~ / \) / {
             @final.append("RPAREN:" ~ $elem);
         }
-        else if $elem ~~ / \+ / {
+        elseif $elem ~~ / \+ / {
             @final.append("ADDITION:" ~ $elem);
         }
-        else if $elem ~~ / \* / {
+        elseif $elem ~~ / \* / {
             @final.append("MULTIPLICATION:" ~ $elem);
         }
-        else if $elem ~~ /<alpha>/ {
+        elseif $elem ~~ /<alpha>/ {
             @final.append("IDENTIFIER:" ~ $elem);
         }
         # ** HOW DO YOU REGEX FOR \"\" ?? **
         # else if $elem ~~ / [] / {
         #     @final.append("IDENTIFIER:" ~ $elem);
         # }
-        else if $elem ~~ /^\d+$/ {
+        elseif $elem ~~ /^\d+$/ {
             @final.append("INTEGER:" ~ $elem);
         }
         # catch for any unknown/illegal pieces
@@ -75,7 +83,7 @@ sub stillRP ($rParens) {
     }
     return @temp;
 }
-
+# Look through all the elements and count the number of left and right parenthesis then compare
 sub balance (@tokens) is export {
     my $leftCount = 0;
     my $rightCount = 0;
@@ -84,18 +92,19 @@ sub balance (@tokens) is export {
         if $elem ~~ / LPAREN / {
             $leftCount += 1;
         }
-        else if $elem ~~ / RPAREN / {
+        elseif $elem ~~ / RPAREN / {
             $rightCount += 1; 
         }
     }
     return $leftCount = $rightCount;
 }
 
+# track the indentation of of the blocks with a counter and create a string with the 
+# proper amount of indents to be grafted onto the final
 sub format (@tokens) is export {
     my $tabCount = 0;
     my $final = "";
     for @tokens -> $elem {
-
         my $indent = "";
         for 0..$tabCount {
             $indent ~= "\t"
@@ -108,9 +117,10 @@ sub format (@tokens) is export {
         if $elem ~~ /LPAREN/ {
             $tabCount += 1;
         }
-        else if $elem ~~ /RPAREN/ {
+        elseif $elem ~~ /RPAREN/ {
             $tabCount -= 1;
         }
     }
     return $final;
 }
+
