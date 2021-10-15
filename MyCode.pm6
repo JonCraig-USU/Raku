@@ -30,7 +30,7 @@ sub getTokens ($program) is export {
             @prepName.append($/);
             @prepName.append($/.postmatch);
         }
-        elseif $elem ~~ / \) / {
+        elsif $elem ~~ / \) / {
             @prepName.append($/.prematch);
             # check that there are no trailing right parenthesis
             # with the limited operators there should never be duplicate left parenthesis
@@ -46,29 +46,29 @@ sub getTokens ($program) is export {
         if $elem ~~ / \( / {
             @final.append("LPAREN:" ~ $elem);
         }
-        elseif $elem ~~ / \) / {
+        elsif $elem ~~ / \) / {
             @final.append("RPAREN:" ~ $elem);
         }
-        elseif $elem ~~ / \+ / {
+        elsif $elem ~~ / \+ / {
             @final.append("ADDITION:" ~ $elem);
         }
-        elseif $elem ~~ / \* / {
+        elsif $elem ~~ / \* / {
             @final.append("MULTIPLICATION:" ~ $elem);
         }
-        elseif $elem ~~ /<alpha>/ {
+        elsif $elem ~~ /<alpha>/ {
             @final.append("IDENTIFIER:" ~ $elem);
         }
         # ** HOW DO YOU REGEX FOR \"\" ?? **
         # else if $elem ~~ / [] / {
         #     @final.append("IDENTIFIER:" ~ $elem);
         # }
-        elseif $elem ~~ /^\d+$/ {
+        elsif $elem ~~ /^\d+$/ {
             @final.append("INTEGER:" ~ $elem);
         }
         # catch for any unknown/illegal pieces
-        else {
-            @final.append("UNKNOWN-VIOLATOR:" ~ $elem);
-        }
+        # else {
+        #     @final.append("UNKNOWN-VIOLATOR:" ~ $elem);
+        # }
     }
     return @final;
 }
@@ -92,11 +92,16 @@ sub balance (@tokens) is export {
         if $elem ~~ / LPAREN / {
             $leftCount += 1;
         }
-        elseif $elem ~~ / RPAREN / {
+        elsif $elem ~~ / RPAREN / {
             $rightCount += 1; 
         }
     }
-    return $leftCount = $rightCount;
+    if $leftCount = $rightCount {
+        return "TRUE";
+    }
+    else {
+        return "FALSE";
+    }
 }
 
 # track the indentation of of the blocks with a counter and create a string with the 
@@ -117,7 +122,7 @@ sub format (@tokens) is export {
         if $elem ~~ /LPAREN/ {
             $tabCount += 1;
         }
-        elseif $elem ~~ /RPAREN/ {
+        elsif $elem ~~ /RPAREN/ {
             $tabCount -= 1;
         }
     }
